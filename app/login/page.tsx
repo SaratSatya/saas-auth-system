@@ -35,6 +35,14 @@ export default function LoginPage() {
       >
         Login
       </button>
+      <button
+          onClick={() =>
+          signIn("google", { callbackUrl: "/dashboard" })
+          }
+      >
+        Login with Google
+      </button>
+
     </div>
   );
 }

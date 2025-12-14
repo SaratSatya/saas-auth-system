@@ -3,6 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import { NextAuthOptions } from "next-auth";
 import { prisma } from "./prisma";
 import { verifyPassword } from "./password";
+import Google from "next-auth/providers/google";
+
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -42,6 +44,11 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    Google({
+      clientId:process.env.GOOGLE_CLIENT_ID!,
+      clientSecret:process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
+    })
   ],
   pages: {
     signIn: "/login",
