@@ -42,6 +42,8 @@ export default function LoginPage() {
       >
         Login with Google
       </button>
+      <a href="/forgot-password">Forgot password?</a>
+
 
     </div>
   );

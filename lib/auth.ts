@@ -60,22 +60,30 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
-      // Runs ONLY on first login
-      if (user && !token.loggedIn) {
-        await prisma.auditLog.create({
-          data: {
-            userId: user.id as string,
-            action: "LOGIN",
-          },
-        });
+    async jwt({ token, user, account }) {
+  // Runs on first login (credentials or OAuth)
+  if (user && !token.loggedIn) {
+    // ✅ Mark email verified for OAuth users
+    if (account?.provider === "google") {
+      await prisma.user.update({
+        where: { id: user.id as string },
+        data: { emailVerified: new Date() },
+      });
+    }
+      // ✅ Audit log
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id as string,
+          action: "LOGIN",
+        },
+      });
 
-        token.loggedIn = true;
-        token.role = (user as any).role;
-      }
+      token.loggedIn = true;
+      token.role = (user as any).role;
+    }
 
-      return token;
-    },
+    return token;
+  },
 
     async session({ session, token }) {
       if (session.user) {
