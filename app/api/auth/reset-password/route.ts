@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
+import { validatePassword }  from "@/lib/password-policy";
 
 export async function POST(req: Request) {
   const { token, password } = await req.json();
@@ -15,6 +16,12 @@ export async function POST(req: Request) {
   if (!row || row.used || row.expiresAt < new Date()) {
     return Response.json({ error: "Token invalid or expired" }, { status: 400 });
   }
+
+  const passwordError = validatePassword(password);
+    if (passwordError) {
+      return Response.json({ error: passwordError }, { status: 400 });
+  }
+
 
   await prisma.user.update({
     where: { email: row.email },

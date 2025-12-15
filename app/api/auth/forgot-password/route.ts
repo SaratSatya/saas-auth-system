@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/mailer";
+import { sendEmail } from "@/lib/email";
+import crypto from "crypto"
+
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const { email } = await req.json();
@@ -27,11 +30,15 @@ export async function POST(req: Request) {
 
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
-  await sendEmail(
-    email,
-    "Reset your password",
-    `<p>Click to reset password:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
-  );
+  await sendEmail({
+  to: email,
+  subject: "Reset your password",
+  title: "Password Reset",
+  message: "You requested to reset your password.",
+  actionText: "Reset Password",
+  actionLink: resetUrl,
+});
+
 
   return Response.json({ ok: true });
 }

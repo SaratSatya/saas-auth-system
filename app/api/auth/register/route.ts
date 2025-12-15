@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
-import { sendEmail } from "@/lib/mailer";
+import {sendEmail} from "@/lib/email"
+export const runtime = "nodejs";
+import crypto from "crypto"
+import { validatePassword } from   "@/lib/password-policy";
+
 
 export async function POST(req: Request) {
   const { name, email, password } = await req.json();
@@ -13,7 +17,10 @@ export async function POST(req: Request) {
   if (existing) {
     return Response.json({ error: "Email already registered" }, { status: 409 });
   }
-
+  const passwordError=validatePassword(password);
+  if(passwordError){
+    return Response.json({error:passwordError},{status:400});
+  }
   const hashed = await hashPassword(password);
 
   await prisma.user.create({
@@ -36,11 +43,15 @@ export async function POST(req: Request) {
   });
 
   const verifyUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`;
-  await sendEmail(
-    email,
-    "Verify your email",
-    `<p>Click to verify:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p>`
-  );
+  await sendEmail({
+  to: email,
+  subject: "Verify your email",
+  title: "Verify your email address",
+  message: "Welcome! Please verify your email to activate your account.",
+  actionText: "Verify Email",
+  actionLink: verifyUrl,
+});
+
 
   return Response.json({ ok: true });
 }
