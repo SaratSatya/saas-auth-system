@@ -1,16 +1,17 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import { prisma } from "./prisma";
 import { verifyPassword } from "./password";
-import Google from "next-auth/providers/google";
-
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+
   session: {
     strategy: "jwt",
   },
+
   providers: [
     Credentials({
       name: "Credentials",
@@ -29,6 +30,8 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.password) return null;
 
+        if(!user.emailVerified) return null;
+
         const isValid = await verifyPassword(
           credentials.password,
           user.password
@@ -44,25 +47,39 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+
     Google({
-      clientId:process.env.GOOGLE_CLIENT_ID!,
-      clientSecret:process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: true,
-    })
+    }),
   ],
+
   pages: {
     signIn: "/login",
   },
-  callbacks:{
-    async jwt({token,user}){
-      if(user){
-        token.role=(user as any).role;
+
+  callbacks: {
+    async jwt({ token, user }) {
+      // Runs ONLY on first login
+      if (user && !token.loggedIn) {
+        await prisma.auditLog.create({
+          data: {
+            userId: user.id as string,
+            action: "LOGIN",
+          },
+        });
+
+        token.loggedIn = true;
+        token.role = (user as any).role;
       }
-      return token
+
+      return token;
     },
-    async session({session,token}){
-      if(session.user){
-        (session.user as any).role=token.role;
+
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
       }
       return session;
     },
