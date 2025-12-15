@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import AuthCard from "@/components/AuthCard";
+import { AuthInput } from "@/components/AuthInput";
+import { AuthButton } from "@/components/AuthButton";
 
 export default function ResetPasswordPage() {
   const params = useSearchParams();
@@ -20,15 +23,21 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div>
-      <h1>Reset Password</h1>
-      <input
-        type="password"
-        placeholder="New password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={submit}>Set password</button>
-    </div>
+    <AuthCard title="Set new password">
+      <div className="space-y-4">
+        <AuthInput
+          type="password"
+          placeholder="New password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <AuthButton onClick={submit}>Update password</AuthButton>
+
+        <a href="/login" className="block text-center text-sm text-zinc-400">
+          Back to login
+        </a>
+      </div>
+    </AuthCard>
   );
 }

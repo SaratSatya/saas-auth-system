@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import AuthCard from "@/components/AuthCard";
+import { AuthInput } from "@/components/AuthInput";
+import { AuthButton } from "@/components/AuthButton";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -15,17 +18,34 @@ export default function ForgotPasswordPage() {
     setDone(true);
   };
 
-  if (done) return <p>If the email exists, a reset link was sent.</p>;
+  if (done) {
+    return (
+      <AuthCard title="Check your email">
+        <p className="text-center text-sm text-zinc-400">
+          If the email exists, a reset link has been sent.
+        </p>
+        <a href="/login" className="mt-4 block text-center text-blue-500">
+          Back to login
+        </a>
+      </AuthCard>
+    );
+  }
 
   return (
-    <div>
-      <h1>Forgot Password</h1>
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <button onClick={submit}>Send reset link</button>
-    </div>
+    <AuthCard title="Forgot password">
+      <div className="space-y-4">
+        <AuthInput
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <AuthButton onClick={submit}>Send reset link</AuthButton>
+
+        <a href="/login" className="block text-center text-sm text-zinc-400">
+          Back to login
+        </a>
+      </div>
+    </AuthCard>
   );
 }
