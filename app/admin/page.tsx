@@ -1,13 +1,20 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import AdminActions from "./AdminActions";
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      isActive: true,
+    },
+  });
 
-  if (!session || (session.user as any).role !== "ADMIN") {
-    redirect("/dashboard");
-  }
-
-  return <h1>Admin Dashboard</h1>;
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
+      <AdminActions users={users} />
+    </div>
+  );
 }

@@ -32,6 +32,9 @@ export const authOptions: NextAuthOptions = {
 
         if(!user.emailVerified) return null;
 
+        if (!user.isActive) return null;
+
+
         const isValid = await verifyPassword(
           credentials.password,
           user.password
@@ -80,6 +83,7 @@ export const authOptions: NextAuthOptions = {
 
       token.loggedIn = true;
       token.role = (user as any).role;
+      token.isActive=(user as any).isActive;
     }
 
     return token;
@@ -88,6 +92,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).role = token.role;
+        (session.user as any).isActive=token.isActive;
       }
       return session;
     },
