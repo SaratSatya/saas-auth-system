@@ -38,18 +38,26 @@ export default function LoginPage() {
           Login
         </AuthButton>
 
+        {/* ✅ Google button – visible by default */}
         <button
           onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-          className="w-full rounded-md border border-zinc-700 py-2 text-sm hover:bg-zinc-800 transition"
+          className="w-full rounded-md border border-gray-300 bg-white py-2 text-sm text-gray-900 hover:bg-gray-400 transition"
         >
           Continue with Google
         </button>
 
-        <div className="flex justify-between text-sm text-zinc-400">
-          <a href="/register" className="hover:text-white">
+        {/* ✅ Links – never disappear on hover */}
+        <div className="flex justify-between text-sm text-white-600">
+          <a
+            href="/register"
+            className="hover:text-red-600 transition"
+          >
             Create account
           </a>
-          <a href="/forgot-password" className="hover:text-white">
+          <a
+            href="/forgot-password"
+            className="hover:text-red-600 transition"
+          >
             Forgot password?
           </a>
         </div>
